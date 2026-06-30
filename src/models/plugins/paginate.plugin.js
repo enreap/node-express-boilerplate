@@ -41,11 +41,9 @@ const paginate = (schema) => {
 
     if (options.populate) {
       options.populate.split(',').forEach((populateOption) => {
+        const populateParts = populateOption.split('.').reverse();
         docsPromise = docsPromise.populate(
-          populateOption
-            .split('.')
-            .reverse()
-            .reduce((a, b) => ({ path: b, populate: a }))
+          populateParts.slice(1).reduce((a, b) => ({ path: b, populate: a }), populateParts[0]),
         );
       });
     }
@@ -62,7 +60,7 @@ const paginate = (schema) => {
         totalPages,
         totalResults,
       };
-      return Promise.resolve(result);
+      return result;
     });
   };
 };

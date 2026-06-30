@@ -266,8 +266,8 @@ describe('Auth routes', () => {
     test('should return 204 and reset the password', async () => {
       await insertUsers([userOne]);
       const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
-      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
+      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASS);
+      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASS);
 
       await request(app)
         .post('/v1/auth/reset-password')
@@ -279,7 +279,7 @@ describe('Auth routes', () => {
       const isPasswordMatch = await bcrypt.compare('password2', dbUser.password);
       expect(isPasswordMatch).toBe(true);
 
-      const dbResetPasswordTokenCount = await Token.countDocuments({ user: userOne._id, type: tokenTypes.RESET_PASSWORD });
+      const dbResetPasswordTokenCount = await Token.countDocuments({ user: userOne._id, type: tokenTypes.RESET_PASS });
       expect(dbResetPasswordTokenCount).toBe(0);
     });
 
@@ -292,8 +292,8 @@ describe('Auth routes', () => {
     test('should return 401 if reset password token is blacklisted', async () => {
       await insertUsers([userOne]);
       const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
-      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD, true);
+      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASS);
+      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASS, true);
 
       await request(app)
         .post('/v1/auth/reset-password')
@@ -305,8 +305,8 @@ describe('Auth routes', () => {
     test('should return 401 if reset password token is expired', async () => {
       await insertUsers([userOne]);
       const expires = moment().subtract(1, 'minutes');
-      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
-      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
+      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASS);
+      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASS);
 
       await request(app)
         .post('/v1/auth/reset-password')
@@ -317,8 +317,8 @@ describe('Auth routes', () => {
 
     test('should return 401 if user is not found', async () => {
       const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
-      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
+      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASS);
+      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASS);
 
       await request(app)
         .post('/v1/auth/reset-password')
@@ -330,8 +330,8 @@ describe('Auth routes', () => {
     test('should return 400 if password is missing or invalid', async () => {
       await insertUsers([userOne]);
       const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
-      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
+      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASS);
+      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASS);
 
       await request(app).post('/v1/auth/reset-password').query({ token: resetPasswordToken }).expect(httpStatus.BAD_REQUEST);
 
