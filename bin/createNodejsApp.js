@@ -11,10 +11,8 @@ async function runCmd(command) {
     const { stdout, stderr } = await exec(command);
     console.log(stdout);
     console.log(stderr);
-  } catch {
-    (error) => {
-      console.log(error);
-    };
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -56,6 +54,13 @@ try {
 }
 
 async function setup() {
+  const baseDir = fs.realpathSync(ownPath) + path.sep;
+  const canonicalAppPath = fs.realpathSync(appPath);
+  if (!canonicalAppPath.startsWith(baseDir)) {
+    console.log('Invalid project directory. Path traversal is not allowed.');
+    process.exit(1);
+  }
+
   try {
     // Clone repo
     console.log(`Downloading files from repo ${repo}`);
@@ -64,7 +69,7 @@ async function setup() {
     console.log('');
 
     // Change directory
-    process.chdir(appPath);
+    process.chdir(canonicalAppPath);
 
     // Install dependencies
     const useYarn = await hasYarn();
@@ -78,20 +83,20 @@ async function setup() {
     console.log();
 
     // Copy envornment variables
-    fs.copyFileSync(path.join(appPath, '.env.example'), path.join(appPath, '.env'));
+    fs.copyFileSync(path.join(canonicalAppPath, '.env.example'), path.join(canonicalAppPath, '.env'));
     console.log('Environment files copied.');
 
     // Delete .git folder
     await runCmd('npx rimraf ./.git');
 
     // Remove extra files
-    fs.unlinkSync(path.join(appPath, 'CHANGELOG.md'));
-    fs.unlinkSync(path.join(appPath, 'CODE_OF_CONDUCT.md'));
-    fs.unlinkSync(path.join(appPath, 'CONTRIBUTING.md'));
-    fs.unlinkSync(path.join(appPath, 'bin', 'createNodejsApp.js'));
-    fs.rmdirSync(path.join(appPath, 'bin'));
+    fs.unlinkSync(path.join(canonicalAppPath, 'CHANGELOG.md'));
+    fs.unlinkSync(path.join(canonicalAppPath, 'CODE_OF_CONDUCT.md'));
+    fs.unlinkSync(path.join(canonicalAppPath, 'CONTRIBUTING.md'));
+    fs.unlinkSync(path.join(canonicalAppPath, 'bin', 'createNodejsApp.js'));
+    fs.rmdirSync(path.join(canonicalAppPath, 'bin'));
     if (!useYarn) {
-      fs.unlinkSync(path.join(appPath, 'yarn.lock'));
+      fs.unlinkSync(path.join(canonicalAppPath, 'yarn.lock'));
     }
 
     console.log('Installation is now complete!');
