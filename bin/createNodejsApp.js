@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const util = require('util');
+const util = require('node:util');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
